@@ -65,17 +65,24 @@ def signup():
     print(username, accountName, password)
 
     # 檢查帳號
-    mycursor.execute(
-        f'SELECT * FROM member WHERE username = "{username}"; '
-    )
+#     mycursor.execute(
+#         f'SELECT * FROM member WHERE username = "{username}"; '
+#     )
+    mycursor = mydb.cursor()
+    select_stmt = "SELECT * FROM member WHERE username = %(username)s"
+    mycursor.execute(select_stmt, {'username': username})
     myresult = mycursor.fetchall()
     # for x in myresult:
     #     print(x)
 
     if not myresult:
-        mycursor.execute(
-            f'''INSERT INTO member (username,accountName,password) VALUES("{username}","{accountName}","{password}");'''
-        )
+#         mycursor.execute(
+#             f'''INSERT INTO member (username,accountName,password) VALUES("{username}","{accountName}","{password}");'''
+#         )
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO member (username,accountName,password) VALUES (%s, %s, %s)"
+        val = [(username, accountName, password)]
+        mycursor.executemany(sql, val)
         mydb.commit()
         return redirect("/")
 
