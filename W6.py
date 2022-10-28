@@ -77,7 +77,7 @@ def signup():
 @app.route("/member")
 def index_member():
     if session.get(IS_LOGIN, None):
-        return render_template("member.html")
+        return render_template("member.html", Hello=session['username'])
     return redirect("/")
 
 
