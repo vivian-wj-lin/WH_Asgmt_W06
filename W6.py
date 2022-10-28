@@ -100,8 +100,8 @@ def signin():
     if (accountName == "" or password == ""):
         return redirect("/error?message=請輸入帳號、密碼")
     mycursor = mydb.cursor()
-    mycursor.execute(
-        "SELECT username FROM member WHERE accountName = %s AND password = %s", (accountName, password))
+    select_stmt = "SELECT username FROM member WHERE accountName = %s AND password = %s"
+    mycursor.execute(select_stmt, (accountName, password))
     myresult = mycursor.fetchall()[0][0]  # username
 
     if myresult:
