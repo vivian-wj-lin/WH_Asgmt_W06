@@ -44,13 +44,6 @@ mycursor.execute(
 )
 mydb.commit()
 
-mycursor.execute("SELECT * FROM member; ")
-result = mycursor.fetchall()
-# for x in result:
-#     print(x)
-# mycursor.close()
-# mydb.close()
-
 
 @app.route("/")
 def index():
@@ -62,23 +55,14 @@ def signup():
     username = request.form["username"]
     accountName = request.form["accountName"]
     password = request.form["password"]
-    print(username, accountName, password)
 
     # 檢查帳號
-#     mycursor.execute(
-#         f'SELECT * FROM member WHERE username = "{username}"; '
-#     )
     mycursor = mydb.cursor()
     select_stmt = "SELECT * FROM member WHERE username = %(username)s"
     mycursor.execute(select_stmt, {'username': username})
     myresult = mycursor.fetchall()
-    # for x in myresult:
-    #     print(x)
 
     if not myresult:
-#         mycursor.execute(
-#             f'''INSERT INTO member (username,accountName,password) VALUES("{username}","{accountName}","{password}");'''
-#         )
         mycursor = mydb.cursor()
         sql = "INSERT INTO member (username,accountName,password) VALUES (%s, %s, %s)"
         val = [(username, accountName, password)]
@@ -94,7 +78,6 @@ def signup():
 def index_member():
     if session.get(IS_LOGIN, None):
         return render_template("member.html")
-
     return redirect("/")
 
 
@@ -116,28 +99,15 @@ def signin():
     password = request.form["password"]
     if (accountName == "" or password == ""):
         return redirect("/error?message=請輸入帳號、密碼")
+    mycursor = mydb.cursor()
     mycursor.execute(
-        f'SELECT * FROM member WHERE accountName = "{accountName}" AND password = "{password}"; '
-    )
-    myresult = mycursor.fetchall()
-    # for x in myresult:
-    #     print(x)
+        "SELECT username FROM member WHERE accountName = %s AND password = %s", (accountName, password))
+    myresult = mycursor.fetchall()[0][0]  # username
 
     if myresult:
         session[IS_LOGIN] = True
-        mycursor.execute(
-            f'SELECT username FROM member where accountname="{request.form["accountName"]}";'
-        )
-        Theusername = mycursor.fetchall()[0][0]
-
-        # for x in Theusername:
-        #     print(x)  # 印出test
-        # print(Theusername)
-
-        # session["username"] = Theusername
-        # print(Theusername)
-
-        return render_template("member.html", Hello=Theusername)
+        session["username"] = myresult
+        return redirect("/member")
 
     if not myresult:
         return redirect("/error?message=帳號、或密碼輸入錯誤")
